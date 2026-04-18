@@ -1,103 +1,207 @@
 .navbar {
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 200;
   background: var(--bg);
   border-bottom: 1px solid var(--border);
-  backdrop-filter: blur(10px);
 }
 
 .navbar-inner {
   display: flex;
   align-items: center;
-  gap: 32px;
+  gap: 24px;
   height: 64px;
 }
 
+/* Logo */
 .navbar-logo {
   display: flex;
   align-items: center;
   gap: 8px;
   font-size: 20px;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--primary);
+  letter-spacing: -0.5px;
+  flex-shrink: 0;
+  text-decoration: none;
 }
 
-.logo-icon { font-size: 22px; }
+.logo-icon {
+  font-size: 22px;
+  line-height: 1;
+}
 
+/* Nav links */
 .navbar-links {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
   flex: 1;
 }
 
 .nav-link {
   padding: 6px 12px;
-  border-radius: var(--radius-sm);
+  border-radius: 8px;
   font-size: 14px;
   font-weight: 500;
   color: var(--text-muted);
-  transition: all var(--transition);
+  transition: color 0.2s, background 0.2s;
+  white-space: nowrap;
+  text-decoration: none;
 }
 
-.nav-link:hover, .nav-link.active {
+.nav-link:hover {
   color: var(--primary);
-  background: var(--secondary);
+  background: var(--bg-secondary);
+}
+
+.nav-link.active {
+  color: var(--primary);
+  background: var(--bg-secondary);
+  font-weight: 600;
 }
 
 .nav-admin {
-  color: var(--accent) !important;
+  color: #f43f5e !important;
 }
 
+.nav-admin:hover,
+.nav-admin.active {
+  background: #fff1f2 !important;
+  color: #e11d48 !important;
+}
+
+[data-theme="dark"] .nav-admin:hover,
+[data-theme="dark"] .nav-admin.active {
+  background: #3b0a17 !important;
+}
+
+/* Actions */
 .navbar-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  flex-shrink: 0;
 }
 
+/* Icon buttons */
 .icon-btn {
   position: relative;
   background: none;
   border: none;
   padding: 8px;
-  border-radius: var(--radius-sm);
+  border-radius: 8px;
   font-size: 18px;
-  transition: background var(--transition);
+  line-height: 1;
+  color: var(--text);
   cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  min-width: 38px;
+  height: 38px;
 }
 
-.icon-btn:hover { background: var(--bg-secondary); }
+.icon-btn:hover {
+  background: var(--bg-secondary);
+}
 
+/* Favorites heart */
+.fav-heart {
+  font-size: 18px;
+  transition: color 0.2s, transform 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fav-heart.has-items {
+  color: #ef4444;
+}
+
+.icon-btn:hover .fav-heart {
+  transform: scale(1.2);
+  color: #ef4444;
+}
+
+/* Badge */
 .cart-badge {
   position: absolute;
   top: 2px;
   right: 2px;
   background: var(--primary);
-  color: white;
-  font-size: 10px;
+  color: #fff;
+  font-size: 9px;
   font-weight: 700;
-  width: 16px;
+  min-width: 16px;
   height: 16px;
-  border-radius: 50%;
+  padding: 0 3px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
+  line-height: 1;
+  pointer-events: none;
 }
 
+/* Avatar */
 .nav-avatar {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   background: var(--primary);
-  color: white;
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: opacity 0.2s, box-shadow 0.2s;
+  position: relative;
 }
 
-@media (max-width: 768px) {
-  .navbar-links { display: none; }
+.nav-avatar:hover {
+  opacity: 0.85;
+  box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.25);
+}
+
+/* Admin green dot */
+.admin-dot {
+  position: absolute;
+  bottom: 1px;
+  right: 1px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #10b981;
+  border: 2px solid var(--bg);
+}
+
+/* Auth buttons */
+.auth-btns {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Logout */
+.logout-btn {
+  margin-left: 4px;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .navbar-links {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .logout-btn {
+    display: none;
+  }
 }

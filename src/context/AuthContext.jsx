@@ -1,8 +1,19 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState } from 'react';
 
 const AuthContext = createContext(null);
 
-const ADMIN_CREDENTIALS = { email: 'admin@shop.com', password: 'admin123' };
+const USERS_DB_KEY = 'shopflow_users';
+
+function getUsersDB() {
+  const saved = localStorage.getItem(USERS_DB_KEY);
+  return saved ? JSON.parse(saved) : [
+    { id: 0, email: 'admin@shop.com', password: 'admin123', name: 'Admin', role: 'admin' }
+  ];
+}
+
+function saveUsersDB(users) {
+  localStorage.setItem(USERS_DB_KEY, JSON.stringify(users));
+}
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
@@ -11,32 +22,33 @@ export function AuthProvider({ children }) {
   });
 
   const login = async (email, password) => {
-    // Admin check
-    if (email === ADMIN_CREDENTIALS.email && password === ADMIN_CREDENTIALS.password) {
-      const adminUser = { id: 0, email, name: 'Admin', role: 'admin', token: 'admin-token' };
-      setUser(adminUser);
-      localStorage.setItem('user', JSON.stringify(adminUser));
-      return adminUser;
-    }
-    // Regular user via FakeStoreAPI
-    const res = await fetch('https://fakestoreapi.com/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: 'mor_2314', password: '83r5^_' }) // demo creds
-    });
-    if (!res.ok) throw new Error('Invalid credentials');
-    const data = await res.json();
-    const loggedUser = { id: 1, email, name: email.split('@')[0], role: 'user', token: data.token };
-    setUser(loggedUser);
-    localStorage.setItem('user', JSON.stringify(loggedUser));
-    return loggedUser;
+    const users = getUsersDB();
+    const found = users.find(u => u.email === email && u.password === password);
+    if (!found) throw new Error('Invalid credentials');
+    const { password: _, ...safeUser } = found;
+    setUser(safeUser);
+    localStorage.setItem('user', JSON.stringify(safeUser));
+    return safeUser;
   };
 
-  const register = (name, email) => {
-    const newUser = { id: Date.now(), name, email, role: 'user', token: 'token-' + Date.now() };
-    setUser(newUser);
-    localStorage.setItem('user', JSON.stringify(newUser));
-    return newUser;
+  const register = (name, email, password) => {
+    const users = getUsersDB();
+    if (users.find(u => u.email === email)) throw new Error('Email already exists');
+    const newUser = { id: Date.now(), name, email, password, role: 'user' };
+    saveUsersDB([...users, newUser]);
+    const { password: _, ...safeUser } = newUser;
+    setUser(safeUser);
+    localStorage.setItem('user', JSON.stringify(safeUser));
+    return safeUser;
+  };
+
+  const updateProfile = (updates) => {
+    const updated = { ...user, ...updates };
+    setUser(updated);
+    localStorage.setItem('user', JSON.stringify(updated));
+    // sync to DB
+    const users = getUsersDB();
+    saveUsersDB(users.map(u => u.id === updated.id ? { ...u, ...updates } : u));
   };
 
   const logout = () => {
@@ -45,7 +57,15 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, isAdmin: user?.role === 'admin' }}>
+    <AuthContext.Provider value={{
+      user,
+      login,
+      register,
+      logout,
+      updateProfile,
+      isAdmin: user?.role === 'admin',
+      isOwner: (ownerId) => user && (user.role === 'admin' || user.id === ownerId),
+    }}>
       {children}
     </AuthContext.Provider>
   );
